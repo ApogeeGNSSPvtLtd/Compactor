@@ -162,36 +162,42 @@ function getGridInBounds(lwPolylineMap, minmaxcoordinates, current_dragdrop_dist
                 var ii = Math.ceil((deltaX / n)) + i;
                 var jj = Math.ceil((deltaY / n)) + j;
                 var outerBoundkey = ii + "_" + jj;
-//                console.log("outerBoundkey : " + outerBoundkey);
-                var stepX = current_n_res / n;
-                var stepY = current_m_res / n;
-                if (current_n_res !== n && current_m_res !== n) {
-                    min_reo_flag = true;
-                }
-                if (current_n_res >= n && current_m_res >= n && min_reo_flag) {
-                    if (current_n_res === n && current_m_res === n) {
-                        min_reo_flag = false;
-                    }
+                console.log("current_n_res : " + current_n_res);
+
+//                if (current_n_res !== n && current_m_res !== n) {
+//                    min_reo_flag = true;
+//                }
+//                if (current_n_res >= n && current_m_res >= n && min_reo_flag) {
+
+//                    if (current_n_res === n && current_m_res === n) {
+//                        min_reo_flag = false;
+//                    }
                     viewer.entities.removeAll();
                     createPolylineFromDXFData(lwPolylineMap);
-                    var [initialRows, initialColumns] = innerBoundkey.split("_");
-                    var [endRows, endColumns] = outerBoundkey.split("_");
-//                    var xxMin = origin_X_Min_UTM + n * initialRows;
-//                    var yyMin = origin_Y_Min_UTM + n * initialColumns;
-//                    var xxMax = origin_X_Min_UTM + n * endRows;
-//                    var yyMax = origin_Y_Min_UTM + n * endColumns;
+
+                    const [lon, lat] = UTMToLatLon(parseInt(current_X_Min_UTM), parseInt(current_Y_Min_UTM));
+                    viewer.entities.add({
+                        position: Cesium.Cartesian3.fromDegrees(lon, lat),
+                        point: {
+                            pixelSize: 11,
+                            color: Cesium.Color.BLUE
+                        }
+                    });
+                    const [lon1, lat1] = UTMToLatLon(parseInt(current_X_Max_UTM), parseInt(current_Y_Max_UTM));
+                    viewer.entities.add({
+                        position: Cesium.Cartesian3.fromDegrees(lon1, lat1),
+                        point: {
+                            pixelSize: 11,
+                            color: Cesium.Color.BLUE
+                        }
+                    });
 
                     pointMapInUTM.clear();
                     uniqueIdMap.clear();
-//                    console.log("Before pointMapInUTM : " + pointMapInUTM.size);
-//                    console.log("Before uniqueIdMap : " + uniqueIdMap.size);
                     callapi(origin_X_Min_UTM, origin_Y_Min_UTM, current_X_Min_UTM, current_Y_Min_UTM, current_X_Max_UTM, current_Y_Max_UTM)
                             .then(gridData => {
 //                                    console.log("API Response:", gridData);
-
                                 const steps = gridData.steps;
-                                console.log("steps ::  " + steps);
-
                                 Object.keys(gridData.grid).forEach(key => {
                                     const value = gridData.grid[key];
                                     const splitValues = value.split(',').map(item => item.trim());
@@ -203,24 +209,20 @@ function getGridInBounds(lwPolylineMap, minmaxcoordinates, current_dragdrop_dist
 //                                            color: Cesium.Color.BLUE
 //                                        }
 //                                    });
+
 //                                        var valueInLatLong = lon + "," + lat;
                                     var valueInUTM = splitValues[0] + "," + splitValues[1] + "," + splitValues[2];
 //                                        pointMapInLatLong.set(key, valueInLatLong);
                                     pointMapInUTM.set(key, valueInUTM);
                                 });
-                                generateGridCells(pointMapInUTM, endRows - initialRows, endColumns - initialColumns, steps);
+                                generateGridCells(pointMapInUTM, steps);
                             })
                             .catch(error => {
                                 console.error("API Error:", error);
                             });
-
-//                    console.log("After pointMapInUTM : " + pointMapInUTM.size);
-//                console.log("pointMapInUTM : ", pointMapInUTM);
-//                    generateGridCells(pointMapInUTM, endRows - initialRows, endColumns - initialColumns);
-
-                } else {
-//                    console.log("resolution < 0.25 : grid not updated");
-                }
+//                } else {
+////                    console.log("resolution < 0.25 : grid not updated");
+//                }
                 end_time = performance.now();
                 const executionTimeMs = end_time - start_time;
 //                console.log('getGridInBounds time:' + executionTimeMs + 'milliseconds');
@@ -237,33 +239,22 @@ function getGridInBounds(lwPolylineMap, minmaxcoordinates, current_dragdrop_dist
     }
 }
 
-function generateGridCells(pointMapUTM, rows, columns, steps) {
-//    viewer.entities.removeAll();
-    // Map to store unique IDs with corresponding points and color for each set of four points
-//    uniqueIdMap.clear();
+function generateGridCells(pointMapUTM, steps) {
     let uniqueIdCounter = 0;
-//    let x_skip = 148;
-//    let y_skip = 126;
-
-    // Loop through the pointMapUTM to generate polygons
-
     for (let [key, value] of pointMapUTM) {
         let [xUTM, yUTM, colorIndex] = value.split(",");
         xUTM = parseFloat(xUTM);
         yUTM = parseFloat(yUTM);
 //        console.log("colourcode: " + colorIndex);
-
         let bottomLeftUTM = [xUTM, yUTM];
         let topLeftUTM = [xUTM, yUTM + (steps * 0.25)];
         let bottomRightUTM = [xUTM + (steps * 0.25), yUTM];
         let topRightUTM = [xUTM + (steps * 0.25), yUTM + (steps * 0.25)];
-
         // Convert UTM to Latitude and Longitude
         const [bottomLeftX, bottomLeftY] = UTMToLatLon(bottomLeftUTM[0], bottomLeftUTM[1]);
         const [topLeftX, topLeftY] = UTMToLatLon(topLeftUTM[0], topLeftUTM[1]);
         const [bottomRightX, bottomRightY] = UTMToLatLon(bottomRightUTM[0], bottomRightUTM[1]);
         const [topRightX, topRightY] = UTMToLatLon(topRightUTM[0], topRightUTM[1]);
-
         // Determine the color based on the unique ID
 //        const colorIndex = Math.floor(uniqueIdCounter / 5) % 5;
         let polygonColor;
@@ -302,7 +293,6 @@ function generateGridCells(pointMapUTM, rows, columns, steps) {
                 polygonColor = Cesium.Color.CYAN;
                 break;
         }
-
         // Create a unique ID for this set of four points and store the keys and color
         uniqueIdMap.set(uniqueIdCounter, {
             points: {
@@ -315,7 +305,6 @@ function generateGridCells(pointMapUTM, rows, columns, steps) {
         });
         uniqueIdCounter++;
     }
-
     // Now create polygons using the uniqueIdMap
     uniqueIdMap.forEach((value) => {
         const points = value.points;
@@ -331,20 +320,18 @@ function generateGridCells(pointMapUTM, rows, columns, steps) {
                 ]),
 //                material: Cesium.Color.TRANSPARENT,
                 material: polygonColor.withAlpha(0.5), // Adjust transparency as needed
-                outline: true,
+//                outline: true,
+                outline: false,
                 outlineColor: Cesium.Color.BLACK,
                 outlineWidth: 1, // Set a non-zero width for visibility
                 height: 0
             }
         });
     });
-//    console.log("After uniqueIdMap : " + uniqueIdMap.size);
 //    console.log("Unique ID Map:", uniqueIdMap);
 }
 
-
 function createPolylineFromDXFData(lwPolylineMap) {
-//    console.log("lwPolylineMap :" + lwPolylineMap.length);
     lwPolylineMap.forEach(line => {
         const [name, coords] = line.split('=');
         const points = coords.replace(/[\[\]]/g, '').split(',').map(Number);
@@ -545,34 +532,45 @@ function UTMToLatLon(easting, northing) {
     return proj4(UTM43N, WGS84, [easting, northing]);
 }
 
-////drag and drop
-//var handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
-//// Start dragging
-//handler.setInputAction(function (event) {
-////    console.log("Event:", JSON.stringify(event));
-//    isDragging = true;
-//    startPosition = viewer.camera.pickEllipsoid(event.position);
-////    console.log("Drag Start");
-//}, Cesium.ScreenSpaceEventType.LEFT_DOWN);
-//
-//// During dragging
-//handler.setInputAction(function (event) {
-//    if (isDragging) {
-//        var endPosition = viewer.camera.pickEllipsoid(event.endPosition);
-//        if (endPosition) {
-//            distance = Cesium.Cartesian3.distance(startPosition, endPosition);
-//        }
-//    }
-//}, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
-//
-//// End dragging
-//handler.setInputAction(function () {
-//    if (isDragging) {
-//        isDragging = false;
-////        console.log("Drag End");
-//        getGridInBounds(lwPolylineMap, minmaxcoordinates, distance);
-//    }
-//}, Cesium.ScreenSpaceEventType.LEFT_UP);
+//drag and drop
+var handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+// Start dragging
+handler.setInputAction(function (event) {
+//    console.log("Event:", JSON.stringify(event));
+    isDragging = true;
+    startPosition = viewer.camera.pickEllipsoid(event.position);
+//    console.log("startPosition : " + startPosition);
+    if (Cesium.defined(startPosition)) {
+        // Convert the position to Cartographic coordinates (latitude, longitude, height)
+        const cartographic = Cesium.Cartographic.fromCartesian(startPosition);
+        const longitude = Cesium.Math.toDegrees(cartographic.longitude);
+        const latitude = Cesium.Math.toDegrees(cartographic.latitude);
+        const [easting, northing] = latLonToUTM(latitude, longitude);
+        console.log(`Start Position: easting: ${easting}, northing: ${northing}`);
+    } else {
+        console.log('Start position is undefined.');
+    }
+//    console.log("Drag Start");
+}, Cesium.ScreenSpaceEventType.LEFT_DOWN);
+
+// During dragging
+handler.setInputAction(function (event) {
+    if (isDragging) {
+        var endPosition = viewer.camera.pickEllipsoid(event.endPosition);
+        if (endPosition) {
+            distance = Cesium.Cartesian3.distance(startPosition, endPosition);
+        }
+    }
+}, Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+
+// End dragging
+handler.setInputAction(function () {
+    if (isDragging) {
+        isDragging = false;
+//        console.log("Drag End");
+        getGridInBounds(lwPolylineMap, minmaxcoordinates, distance);
+    }
+}, Cesium.ScreenSpaceEventType.LEFT_UP);
 
 //camera zooming
 viewer.camera.moveEnd.addEventListener(() => {
