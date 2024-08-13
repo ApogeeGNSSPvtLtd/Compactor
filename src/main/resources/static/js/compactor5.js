@@ -34,11 +34,12 @@ const viewer = new Cesium.Viewer('cesiumContainer',
 $(function () {
     $.ajax({
         type: "GET",
-        url: "http://localhost:8080/Compactor/dxfdata",
+        url: "http://localhost:8080/Compactor/rtkandgrid/dxfdataapi",
         dataType: "json",
         success: function (response) {
             let minMaxValues = response.minMaxValues;
             lwPolylineMap = response.lwPolyline_map;
+//            console.log("lwPolylineMap ::  " + lwPolylineMap);     
             minmaxcoordinates = getminMaxValuesOfDXF(minMaxValues);
             seveneBands();
             setView(minmaxcoordinates);
@@ -164,14 +165,14 @@ function getGridInBounds(lwPolylineMap, minmaxcoordinates, current_dragdrop_dist
                 var outerBoundkey = ii + "_" + jj;
                 console.log("current_n_res : " + current_n_res);
 
-//                if (current_n_res !== n && current_m_res !== n) {
-//                    min_reo_flag = true;
-//                }
-//                if (current_n_res >= n && current_m_res >= n && min_reo_flag) {
+                if (current_n_res !== n && current_m_res !== n) {
+                    min_reo_flag = true;
+                }
+                if (current_n_res >= n && current_m_res >= n && min_reo_flag) {
 
-//                    if (current_n_res === n && current_m_res === n) {
-//                        min_reo_flag = false;
-//                    }
+                    if (current_n_res === n && current_m_res === n) {
+                        min_reo_flag = false;
+                    }
                     viewer.entities.removeAll();
                     createPolylineFromDXFData(lwPolylineMap);
 
@@ -220,9 +221,9 @@ function getGridInBounds(lwPolylineMap, minmaxcoordinates, current_dragdrop_dist
                             .catch(error => {
                                 console.error("API Error:", error);
                             });
-//                } else {
-////                    console.log("resolution < 0.25 : grid not updated");
-//                }
+                } else {
+//                    console.log("resolution < 0.25 : grid not updated");
+                }
                 end_time = performance.now();
                 const executionTimeMs = end_time - start_time;
 //                console.log('getGridInBounds time:' + executionTimeMs + 'milliseconds');

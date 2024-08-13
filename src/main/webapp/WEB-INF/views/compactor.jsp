@@ -13,7 +13,7 @@
     </head>
     <body>
 
-        <div id="cesiumContainer">     
+        <div id="cesiumContainer">      
             <!--<button type="submit" onclick="generateStaticGridVertexes()">Show Grids</button>-->
         </div>
         <script src="${pageContext.request.contextPath}/static/js/compactor5.js"></script>     

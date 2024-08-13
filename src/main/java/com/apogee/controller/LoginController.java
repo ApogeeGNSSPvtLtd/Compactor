@@ -22,4 +22,9 @@ public class LoginController {
 //    public String redirectToLogin() {
 //        return "WEB-INF/views/dummy";
 //    }
+
+    @GetMapping("/graph")
+    public String graph() {
+        return "WEB-INF/views/graph";
+    }
 }
