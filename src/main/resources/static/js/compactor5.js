@@ -583,3 +583,111 @@ viewer.camera.moveEnd.addEventListener(() => {
 //    updateConsoleValues(viewer, "change");
 //    getGridInBounds(lwPolylineMap, minmaxcoordinates, 'zoom');
 //});
+
+
+
+
+
+/////////////////////////////////////////////  Testing ////////////////////////////////////////////
+
+//Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJkYWQwMTQwMC1jNGI1LTRjNTktODhmNC03M2FjZTk2ODgwNWEiLCJpZCI6MjIwODM3LCJpYXQiOjE3MTc3NTM2ODV9.NXbyoMbAMkBlp2Hs8nsqnvHOL0wh7mxkVKc5xxpaHGs';
+//
+//var viewer = new Cesium.Viewer('cesiumContainer', {
+//  targetFrameRate: 60,
+//  homeButton: false,
+//  sceneModePicker: false,
+//  navigationHelpButton: false,
+//  baseLayerPicker: false,
+//  clock: new Cesium.Clock({
+//    startTime: Cesium.JulianDate.fromIso8601('1880-01-01'),
+//    currentTime: Cesium.JulianDate.fromIso8601('1880-01-01'),
+//    stopTime: Cesium.JulianDate.fromIso8601("2013-12-01"),
+//    clockRange: Cesium.ClockRange.CLAMPED,
+//    canAnimate: false,
+//    shouldAnimate: false,
+//    multiplier: 31622400 //Fast forward 1 year a second
+//  }),
+//  imageryProvider: new Cesium.ArcGisMapServerImageryProvider({
+//    url: '//services.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer',
+//    enablePickFeatures: false
+//  }),
+//  //Saves GPU memory
+//  scene3DOnly: true,
+//  automaticallyTrackDataSourceClocks: false
+//});
+//
+//viewer.scene.debugShowFramesPerSecond = true;
+//viewer.scene.screenSpaceCameraController.enableTranslate = false;
+//viewer.scene.screenSpaceCameraController.enableTilt = false;
+//viewer.scene.screenSpaceCameraController.enableLook = false;
+//viewer.scene.screenSpaceCameraController.enableCollisionDetection = false;
+////viewer.imageryLayers.get(0).brightness = 0.7;
+//
+//var selector;
+//var rectangleSelector = new Cesium.Rectangle();
+//var screenSpaceEventHandler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+//var cartesian = new Cesium.Cartesian3();
+//var tempCartographic = new Cesium.Cartographic();
+//var center = new Cesium.Cartographic();
+//var firstPoint = new Cesium.Cartographic();
+//var firstPointSet = false;
+//var mouseDown = false;
+//var camera = viewer.camera;
+//
+//
+////Draw the selector while the user drags the mouse while holding shift
+//screenSpaceEventHandler.setInputAction(function drawSelector(movement) {
+//  if (!mouseDown) {
+//    return;
+//  }
+//
+//  cartesian = camera.pickEllipsoid(movement.endPosition, viewer.scene.globe.ellipsoid, cartesian);
+//
+//  if (cartesian) {
+//    //mouse cartographic
+//    tempCartographic = Cesium.Cartographic.fromCartesian(cartesian, Cesium.Ellipsoid.WGS84, tempCartographic);
+//
+//    if (!firstPointSet) {
+//      Cesium.Cartographic.clone(tempCartographic, firstPoint);
+//      firstPointSet = true;
+//    }
+//    else {
+//      rectangleSelector.east = Math.max(tempCartographic.longitude, firstPoint.longitude);
+//      rectangleSelector.west = Math.min(tempCartographic.longitude, firstPoint.longitude);
+//      rectangleSelector.north = Math.max(tempCartographic.latitude, firstPoint.latitude);
+//      rectangleSelector.south = Math.min(tempCartographic.latitude, firstPoint.latitude);
+//      selector.show = true;
+//    }
+//  }
+//}, Cesium.ScreenSpaceEventType.MOUSE_MOVE, Cesium.KeyboardEventModifier.SHIFT);
+//
+//var getSelectorLocation = new Cesium.CallbackProperty(function getSelectorLocation(time, result) {
+//    return Cesium.Rectangle.clone(rectangleSelector, result);
+//  }, false);
+//
+//  screenSpaceEventHandler.setInputAction(function startClickShift() {
+//    mouseDown = true;
+//    selector.rectangle.coordinates = getSelectorLocation;
+//  }, Cesium.ScreenSpaceEventType.LEFT_DOWN, Cesium.KeyboardEventModifier.SHIFT);
+//
+//  screenSpaceEventHandler.setInputAction(function endClickShift() {
+//    mouseDown = false;
+//    firstPointSet = false;
+//    selector.rectangle.coordinates = rectangleSelector;
+//  }, Cesium.ScreenSpaceEventType.LEFT_UP, Cesium.KeyboardEventModifier.SHIFT);
+//
+//
+////Hide the selector by clicking anywhere
+//screenSpaceEventHandler.setInputAction(function hideSelector() {
+//  selector.show = false;
+//}, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+//
+//
+//selector = viewer.entities.add({
+//  selectable: false,
+//  show: false,
+//  rectangle: {
+//    coordinates: getSelectorLocation,
+//    material: Cesium.Color.BLACK.withAlpha(0.5)
+//  }
+//});

@@ -208,13 +208,13 @@
 ////                        if (pointMap.has(key)) {
 //            var valueInLatLong = lon + "," + lat;
 ////                        var valueInUTM = x_i + "," + y_j;
-////                        viewer.entities.add({
-////                            position: Cesium.Cartesian3.fromDegrees(lon, lat),
-////                            point: {
-////                                pixelSize: 11,
-////                                color: Cesium.Color.BLUE
-////                            }
-////                        });
+//                        viewer.entities.add({
+//                            position: Cesium.Cartesian3.fromDegrees(lon, lat),
+//                            point: {
+//                                pixelSize: 11,
+//                                color: Cesium.Color.BLUE
+//                            }
+//                        });
 //            pointMapInLatLong.set(key, valueInLatLong);
 ////                        pointMapInUTM.set(key, valueInUTM);
 ////                        }
